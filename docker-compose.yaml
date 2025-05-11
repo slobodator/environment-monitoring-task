@@ -1,0 +1,110 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: central-service-db
+      POSTGRES_USER: central-service-db-user
+      POSTGRES_PASSWORD: central-service-db-password
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U central-service-db-user -d central-service-db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - environment-monitoring
+
+  kafka:
+    image: confluentinc/cp-kafka:7.8.1
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_NODE_ID: 1
+      CLUSTER_ID: 1
+      KAFKA_PROCESS_ROLES: controller,broker
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://kafka:9093
+    healthcheck:
+      test: kafka-topics --bootstrap-server localhost:9092 --list
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - environment-monitoring
+
+  redis:
+    image: redis:8
+    healthcheck:
+      test: redis-cli ping
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    networks:
+      - environment-monitoring
+
+  central-service:
+    build:
+      context: central-service
+      args:
+        JAR_FILE: target/central-service.jar
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/central-service-db
+      DB_USERNAME: central-service-db-user
+      DB_PASSWORD: central-service-db-password
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SENSOR_INPUTS_TOPIC_NAME: sensor-inputs
+      SENSOR_ALERTS_TOPIC_NAME: sensor-alerts
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - environment-monitoring
+
+  temperature-warehouse-service:
+    build:
+      context: warehouse-service
+      args:
+        JAR_FILE: target/warehouse-service.jar
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      UDP_PORT: 3344
+      SENSOR_TYPE: temperature
+      SENSOR_INPUTS_TOPIC_NAME: sensor-inputs
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - environment-monitoring
+    ports:
+      - "3344:3344/udp"
+  humidity-warehouse-service:
+    build:
+      context: warehouse-service
+      args:
+        JAR_FILE: target/warehouse-service.jar
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      UDP_PORT: 3355
+      SENSOR_TYPE: humidity
+      SENSOR_INPUTS_TOPIC_NAME: sensor-inputs
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - environment-monitoring
+    ports:
+      - "3355:3355/udp"
+
+networks:
+  environment-monitoring:

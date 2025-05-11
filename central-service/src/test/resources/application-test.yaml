@@ -1,0 +1,16 @@
+app:
+  topics:
+    sensor-inputs-topic: test-sensor-inputs
+    sensor-alerts-topic: test-sensor-alerts
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/test_postgres
+    username: postgres
+    password: topsecret
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+

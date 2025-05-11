@@ -1,0 +1,10 @@
+app:
+  sensor-type: temperature
+  topics:
+    sensor-inputs-topic: test-sensor-inputs
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer

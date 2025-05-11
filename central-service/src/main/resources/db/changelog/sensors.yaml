@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: create sensors
+      author: Andriy Slobodyanyk
+      changes:
+        - createTable:
+            tableName: sensors
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: external_id
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: sensor_type
+                  type: VARCHAR(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: threshold
+                  type: DECIMAL(6,2)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: modified_at
+                  type: TIMESTAMP
+        - createSequence:
+            sequenceName: sensors_id_seq
+            startValue: 1
+            incrementBy: 50
+        - sql:
+            sql: |
+              ALTER TABLE sensors
+              ADD CONSTRAINT chk_sensor_type
+              CHECK (sensor_type IN ('TEMPERATURE', 'HUMIDITY'));

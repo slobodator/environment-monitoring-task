@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: populate predefined sensors
+      author: Andriy Slobodyanyk
+      changes:
+        - insert:
+            tableName: sensors
+            columns:
+              - column: { name: id, valueNumeric: -1 }
+              - column: { name: external_id, value: t1 }
+              - column: { name: sensor_type, value: TEMPERATURE }
+              - column: { name: threshold, valueNumeric: 35 }
+              - column: { name: created_at, valueDate: now() }
+        - insert:
+            tableName: sensors
+            columns:
+              - column: { name: id, valueNumeric: -2 }
+              - column: { name: external_id, value: h1 }
+              - column: { name: sensor_type, value: HUMIDITY }
+              - column: { name: threshold, valueNumeric: 50 }
+              - column: { name: created_at, valueDate: now() }
