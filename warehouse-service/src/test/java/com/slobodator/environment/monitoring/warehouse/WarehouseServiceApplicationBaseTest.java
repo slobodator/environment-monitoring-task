@@ -49,7 +49,7 @@ public abstract class WarehouseServiceApplicationBaseTest {
       log.info("Dynamic properties are amended for TestContainers");
       registry.add("spring.kafka.bootstrap-servers", confluentKafkaContainer::getBootstrapServers);
     }
-    registry.add("app.udp-port", WarehouseServiceApplicationBaseTest::findFreeUdpPort);
+    registry.add("app.udp-ports", () -> "temperature:%d".formatted(findFreeUdpPort()));
   }
 
   @Autowired

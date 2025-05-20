@@ -1,5 +1,5 @@
 app:
-  udp-port: ${UDP_PORT}
+  udp-ports: ${UDP_PORTS}
   sensor-type: ${SENSOR_TYPE}
   topics:
     sensor-inputs-topic: ${SENSOR_INPUTS_TOPIC_NAME}

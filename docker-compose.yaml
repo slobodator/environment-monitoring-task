@@ -71,15 +71,14 @@ services:
     networks:
       - environment-monitoring
 
-  temperature-warehouse-service:
+  warehouse-service:
     build:
       context: warehouse-service
       args:
         JAR_FILE: target/warehouse-service.jar
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      UDP_PORT: 3344
-      SENSOR_TYPE: temperature
+      UDP_PORTS: temperature:3344, humidity:3355
       SENSOR_INPUTS_TOPIC_NAME: sensor-inputs
     depends_on:
       kafka:
@@ -88,22 +87,6 @@ services:
       - environment-monitoring
     ports:
       - "3344:3344/udp"
-  humidity-warehouse-service:
-    build:
-      context: warehouse-service
-      args:
-        JAR_FILE: target/warehouse-service.jar
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      UDP_PORT: 3355
-      SENSOR_TYPE: humidity
-      SENSOR_INPUTS_TOPIC_NAME: sensor-inputs
-    depends_on:
-      kafka:
-        condition: service_healthy
-    networks:
-      - environment-monitoring
-    ports:
       - "3355:3355/udp"
 
 networks:

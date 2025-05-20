@@ -1,5 +1,6 @@
 package com.slobodator.environment.monitoring.warehouse.handler;
 
+import com.slobodator.environment.monitoring.common.model.SensorType;
 import com.slobodator.environment.monitoring.warehouse.config.AppConfig;
 import com.slobodator.environment.monitoring.warehouse.mapper.SensorInputEventMapper;
 import com.slobodator.environment.monitoring.warehouse.mapper.SensorInputParser;
@@ -24,7 +25,7 @@ public class SensorInputHandler {
   EventPublisher eventPublisher;
   SensorInputEventMapper sensorInputEventMapper;
 
-  public Mono<String> handle(DatagramPacket datagramPacket) {
+  public Mono<String> handle(DatagramPacket datagramPacket, SensorType sensorType) {
     var inputStr = datagramPacket.content().toString(StandardCharsets.UTF_8).trim();
     log.info("Received a string '{}'", inputStr);
     return Mono.just(inputStr)
@@ -32,7 +33,7 @@ public class SensorInputHandler {
         .flatMap(
             sensorInput -> eventPublisher.send(
                 appConfig.topics().sensorInputsTopic(),
-                sensorInputEventMapper.map(sensorInput, appConfig.sensorType(), Instant.now())
+                sensorInputEventMapper.map(sensorInput, sensorType, Instant.now())
             )
         )
         .map(senderResult -> "OK")
