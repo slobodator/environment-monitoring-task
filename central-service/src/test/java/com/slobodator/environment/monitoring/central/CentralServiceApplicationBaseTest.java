@@ -19,7 +19,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 
-@SuppressWarnings("resource")
+@SuppressWarnings({"resource", "DataFlowIssue"})
 @Slf4j
 @ActiveProfiles("test")
 @SpringBootTest
@@ -81,5 +81,6 @@ public abstract class CentralServiceApplicationBaseTest {
   @BeforeEach
   void cleanUp() {
     sensorRepository.deleteNotPredefined();
+    cacheManager.getCache("central-service-sensors").clear();
   }
 }

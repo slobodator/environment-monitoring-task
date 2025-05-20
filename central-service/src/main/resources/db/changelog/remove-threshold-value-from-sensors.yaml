@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: remove a threshold value from the sensors table
+      author: Andriy Slobodyanyk
+      changes:
+        - dropColumn:
+            tableName: sensors
+            columnName: threshold

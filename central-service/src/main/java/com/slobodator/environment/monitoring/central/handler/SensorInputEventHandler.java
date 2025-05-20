@@ -25,10 +25,10 @@ public class SensorInputEventHandler {
 
     sensor.checkThreshold(
         event.value(),
-        () ->
+        (th) ->
             eventPublisher.send(
                 appConfig.topics().sensorAlertsTopic(),
-                sensorAlertEventMapper.map(sensor, event)
+                sensorAlertEventMapper.map(sensor, event, th)
             )
     );
   }

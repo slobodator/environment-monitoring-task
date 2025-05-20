@@ -3,3 +3,11 @@ databaseChangeLog:
       file: db/changelog/sensors.yaml
   - include:
       file: db/changelog/predefined-sensors.yaml
+  - include:
+      file: db/changelog/thresholds.yaml
+  - include:
+      file: db/changelog/sensor-thresholds-join-table.yaml
+  - include:
+      file: db/changelog/migrate-current-thresholds.yaml
+  - include:
+      file: db/changelog/remove-threshold-value-from-sensors.yaml

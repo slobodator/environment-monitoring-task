@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: migrate current thresholds
+      author: Andriy Slobodyanyk
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              DO $$
+              DECLARE
+                s record;
+                threshold_id integer;
+              BEGIN
+                FOR s IN
+                  SELECT id, external_id, sensor_type, threshold
+                  FROM   sensors
+                  WHERE  threshold is not null
+                LOOP
+                  select nextval('thresholds_id_seq') into threshold_id;
+                  insert into thresholds (id, name, sensor_type, value, severity, created_at)
+                    values (threshold_id, s.external_id || '_threshold', s.sensor_type, s.threshold, 'CRITICAL', now());
+              
+                  insert into sensor_thresholds (sensor_id, threshold_id)
+                    values (s.id, threshold_id);
+                 END LOOP;
+              END
+              $$;

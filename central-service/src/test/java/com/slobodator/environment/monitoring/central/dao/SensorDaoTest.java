@@ -1,7 +1,6 @@
 package com.slobodator.environment.monitoring.central.dao;
 
 import static com.slobodator.environment.monitoring.common.model.SensorType.TEMPERATURE;
-import static java.math.BigDecimal.ZERO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -9,25 +8,26 @@ import com.slobodator.environment.monitoring.central.CentralServiceApplicationBa
 import com.slobodator.environment.monitoring.central.entity.SensorEntity;
 import com.slobodator.environment.monitoring.central.exception.SensorNotFoundException;
 import com.slobodator.environment.monitoring.central.model.Sensor;
-import java.math.BigDecimal;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("DataFlowIssue")
 class SensorDaoTest extends CentralServiceApplicationBaseTest {
+  @SuppressWarnings("unused")
   @Autowired
   private SensorDao sensorDao;
 
   @Test
   void findExistingSensor() {
     sensorRepository.save(
-        new SensorEntity("sensorId", TEMPERATURE, ZERO)
+        new SensorEntity("sensorId", TEMPERATURE)
     );
 
     assertThat(
         sensorDao.findByExternalIdAndType("sensorId", TEMPERATURE)
     ).isEqualTo(
-        new Sensor("sensorId", TEMPERATURE, new BigDecimal("0.00"))
+        new Sensor("sensorId", TEMPERATURE, Collections.emptySet())
     );
 
     assertThat(

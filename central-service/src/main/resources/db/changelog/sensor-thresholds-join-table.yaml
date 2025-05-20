@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: create sensor_thresholds join table
+      author: Andriy Slobodyanyk
+      changes:
+        - createTable:
+            tableName: sensor_thresholds
+            columns:
+              - column:
+                  name: sensor_id
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: threshold_id
+                  type: INT
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: sensor_thresholds
+            columnNames: sensor_id, threshold_id
+            constraintName: sensor_thresholds_pkey
+        - addForeignKeyConstraint:
+            baseTableName: sensor_thresholds
+            baseColumnNames: sensor_id
+            referencedTableName: sensors
+            referencedColumnNames: id
+            constraintName: fk_sensors_thresholds_1
+            onUpdate: CASCADE
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: sensor_thresholds
+            baseColumnNames: threshold_id
+            referencedTableName: thresholds
+            referencedColumnNames: id
+            constraintName: fk_sensors_thresholds_2
+            onUpdate: CASCADE
+            onDelete: CASCADE
+        - createIndex:
+            tableName: sensor_thresholds
+            indexName: idx_sensor_thresholds_1
+            columns:
+              - column:
+                  name: sensor_id
+        - createIndex:
+            tableName: sensor_thresholds
+            indexName: idx_sensor_thresholds_2
+            columns:
+              - column:
+                  name: threshold_id

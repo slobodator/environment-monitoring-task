@@ -1,12 +1,14 @@
 package com.slobodator.environment.monitoring.central.model;
 
 import static com.slobodator.environment.monitoring.common.model.SensorType.TEMPERATURE;
-import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.TEN;
+import static com.slobodator.environment.monitoring.common.model.Severity.CRITICAL;
+import static com.slobodator.environment.monitoring.common.model.Severity.WARNING;
 import static java.math.BigDecimal.ZERO;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import java.math.BigDecimal;
+import java.util.Set;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,27 +16,35 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SensorTest {
-  final Sensor sensor = new Sensor("sensorId", TEMPERATURE, ONE);
+  final Threshold warningThreshold = new Threshold("threshold", new BigDecimal(80), WARNING);
+  final Threshold critialThreshold = new Threshold("threshold", new BigDecimal(100), CRITICAL);
+  final Sensor sensor = new Sensor(
+      "sensorId",
+      TEMPERATURE,
+      Set.of(
+          warningThreshold,
+          critialThreshold
+      )
+  );
 
   @Mock
-  Runnable action;
+  Consumer<Threshold> action;
 
   @Test
-  void callingActionIfThresholdIsExceed() {
-    sensor.checkThreshold(TEN, action);
-    verify(action).run();
+  void callingActionWarningIfThresholdIsExceed() {
+    sensor.checkThreshold(new BigDecimal(90), action);
+    verify(action).accept(warningThreshold);
   }
 
   @Test
-  void noActionIfThresholdIsNotExceed() {
+  void callingActionCriticalIfThresholdIsExceed() {
+    sensor.checkThreshold(new BigDecimal(110), action);
+    verify(action).accept(critialThreshold);
+  }
+
+  @Test
+  void callingActionOkIfThresholdIsNotExceed() {
     sensor.checkThreshold(ZERO, action);
-    verify(action, never()).run();
-  }
-
-  @Test
-  void noActionIfThresholdIsNotSet() {
-    var noThresholdSensor = new Sensor("sensorId", TEMPERATURE, null);
-    noThresholdSensor.checkThreshold(ZERO, action);
-    verify(action, never()).run();
+    verify(action).accept(Threshold.OK);
   }
 }
